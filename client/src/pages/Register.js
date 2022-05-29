@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Logo, FormRow, Alert } from '../components';
 import Wrapper from '../assets/wrappers/RegisterPage';
-import {useAppContext} from "../context/appContext";
+import { useAppContext } from "../context/appContext";
 
 const initialState = {
     name: '',
@@ -13,18 +13,28 @@ const initialState = {
 const Register = () => {
     const [values, setValues] = useState(initialState)
 
-    const { isLoading, showAlert } = useAppContext()
+    const { isLoading, showAlert, displayAlert, clearAlert } = useAppContext()
 
     const toggleMember = () => {
         setValues({ ...values, isMember: !values.isMember })
     }
+
     const handleChange = (e) => {
-        console.log(e.target)
+        setValues({ ...values, [e.target.name]: e.target.value })
     }
 
     const onSubmit = (e) => {
         e.preventDefault()
-        console.log(e.target);
+
+        // Check that all the values that need to be submitted are present.
+        // Only need to check the name if it's not a member, i.e., the
+        // user is registering and not logging in.
+        const { name, email, password, isMember } = values
+        if (!email || !password || (!name && !isMember)) {
+            displayAlert()
+            clearAlert()
+        }
+
     }
 
     return (
