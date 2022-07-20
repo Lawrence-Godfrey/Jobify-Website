@@ -1,11 +1,13 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import 'express-async-errors';
 
 import notFound from "./middleware/not-found.js";
 import errorHandler from "./middleware/error-handler.js";
 import connectDB from "./db/connect.js";
 import authRouter from './routes/authRoutes.js';
 import jobRouter from './routes/jobRoutes.js';
+
 
 dotenv.config()
 

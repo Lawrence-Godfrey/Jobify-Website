@@ -1,8 +1,14 @@
-import {request} from "express";
 
 
 class Serializer {
 
+    /**
+     * Setup the instance with the data from the request,
+     * as well as the fields object and the model to save to or get data from.
+     * @param {Object} requestData     The request object
+     * @param {Object} fields           The fields to save to the instance
+     * @param {Object} model           The model to save to or get data from
+     */
     constructor(requestData, fields, model) {
 
         this.fields = fields;
@@ -37,6 +43,14 @@ class Serializer {
         }
     }
 
+    /**
+     * Get a subset of the fields in the instance which are also in fields.
+     * Also use the name in displayNames if possible.
+     * @param {Object} instance      The instance to get the subset from
+     * @param {Object} fields         The fields to get from the instance
+     * @param {Object} displayNames  The display names to use for the fields
+     * @returns {Object} subset      The subset of the instance
+     */
     getSubset(instance, fields, displayNames) {
         // Get the subset of fields in the instance which are also in fields.
         let subset = {};
@@ -53,11 +67,27 @@ class Serializer {
         return subset;
     }
 
+    /**
+     * Get the validated fields to save.
+     * @returns {AnyObject} validatedData   The validated fields to save
+     */
+    validatedData() {
+        return this.fieldsToSave;
+    }
+
+    /**
+     * Save the instance to the database, only saving the fields in fieldsToSave.
+     * @returns {Promise<null>}
+     */
     async save() {
-        this.instance = await this.model.create(this.fieldsToSave);
+        this.instance = await this.model.create(this.validatedData());
         return this.instance
     }
 
+    /**
+     * Get the data to return to the client from the instance.
+     * @returns {{}|null}
+     */
     data() {
         if (this.instance) {
             return this.getSubset(this.instance, this.fieldsToReturn, this.displayNames);
@@ -66,6 +96,10 @@ class Serializer {
         }
     }
 
+    /**
+     * Return whether the data is valid or not.
+     * @returns {boolean}
+     */
     isValid() {
         return true;
     }

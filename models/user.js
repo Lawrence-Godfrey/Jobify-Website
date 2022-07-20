@@ -3,6 +3,10 @@ import validator from 'validator';
 import jwt from 'jsonwebtoken';
 
 
+/**
+ *
+ * @type {mongoose.Schema<any, Model<any, any, any, any>, {}, {}>}
+ */
 const UserSchema = new mongoose.Schema({
     name: {
         type: String,

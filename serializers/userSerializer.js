@@ -4,7 +4,11 @@ import User from '../models/user.js';
 
 class UserSerializer extends Serializer {
 
-    constructor(data) {
+    /**
+     * Setup the instance with the data from the request.
+     * @param requestData
+     */
+    constructor(requestData) {
         const fields = {
             _id: {
                 readOnly: true,
@@ -21,7 +25,7 @@ class UserSerializer extends Serializer {
 
         const model = User;
 
-        super(data, fields, model);
+        super(requestData, fields, model);
 
     }
 
