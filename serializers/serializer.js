@@ -18,6 +18,7 @@ class Serializer {
         this.fieldsToReturn = {};
         this.displayNames = {};
         this.instance = null;
+        this.errors = {};
 
         console.log(this.fields);
 
@@ -46,20 +47,20 @@ class Serializer {
     /**
      * Get a subset of the fields in the instance which are also in fields.
      * Also use the name in displayNames if possible.
-     * @param {Object} instance      The instance to get the subset from
+     * @param {Object} sourceObject      The instance to get the subset from
      * @param {Object} fields         The fields to get from the instance
      * @param {Object} displayNames  The display names to use for the fields
      * @returns {Object} subset      The subset of the instance
      */
-    getSubset(instance, fields, displayNames) {
+    getSubset(sourceObject, fields, displayNames) {
         // Get the subset of fields in the instance which are also in fields.
         let subset = {};
         for (let key in fields) {
-            if (instance[key]) {
+            if (sourceObject[key]) {
                 if (displayNames[key]) {
-                    subset[displayNames[key]] = instance[key];
+                    subset[displayNames[key]] = sourceObject[key];
                 } else {
-                    subset[key] = instance[key];
+                    subset[key] = sourceObject[key];
                 }
             }
         }
@@ -77,22 +78,29 @@ class Serializer {
 
     /**
      * Save the instance to the database, only saving the fields in fieldsToSave.
-     * @returns {Promise<null>}
+     * @returns {Promise}
      */
     async save() {
-        this.instance = await this.model.create(this.validatedData());
-        return this.instance
+        if (this.isValid()) {
+            try {
+                this.instance = await this.model.create(this.validatedData());
+                return this.instance;
+            } catch (err) {
+                console.log(err);
+                return null;
+            }
+        }
     }
 
     /**
      * Get the data to return to the client from the instance.
-     * @returns {{}|null}
+     * @returns {{}}
      */
     data() {
         if (this.instance) {
             return this.getSubset(this.instance, this.fieldsToReturn, this.displayNames);
         } else {
-            return null;
+            return this.getSubset(this.validatedData(), this.fieldsToReturn, this.displayNames);
         }
     }
 
@@ -101,7 +109,17 @@ class Serializer {
      * @returns {boolean}
      */
     isValid() {
-        return true;
+        this.instance = new this.model(this.fieldsToSave);
+        const errors = this.instance.validateSync();
+        if (errors) {
+            // Loop through the error keys and get the message for each.
+            for (let key in errors.errors) {
+                this.errors[key] = { message: errors.errors[key].message };
+            }
+            return false;
+        } else {
+            return true;
+        }
     }
 
 }

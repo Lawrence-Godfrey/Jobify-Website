@@ -7,7 +7,7 @@ const deleteJob = async (req, res) => {
     res.send("deleteJob")
 }
 
-const getAllJobs =async  (req, res) => {
+const getAllJobs = async  (req, res) => {
     res.send("getAllJobs")
 }
 

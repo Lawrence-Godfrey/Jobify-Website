@@ -29,7 +29,6 @@ class UserSerializer extends Serializer {
 
     }
 
-
 }
 
 export default UserSerializer;
