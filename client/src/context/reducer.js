@@ -1,16 +1,50 @@
-import { DISPLAY_ALERT } from "./actions";
-import { CLEAR_ALERT } from "./actions";
+import {
+    DISPLAY_ALERT,
+    CLEAR_ALERT,
+    REGISTER_USER_BEGIN,
+    REGISTER_USER_SUCCESS,
+    REGISTER_USER_ERROR
+} from "./actions";
+
 
 const reducer = (state, action) => {
     if (action.type === DISPLAY_ALERT) {
-        return { ...state, showAlert: true, alertType: 'danger', alertText: 'Please fill in all fields' }
+        return {...state, showAlert: true, alertType: 'danger', alertText: 'Please fill in all fields'};
     }
 
     if (action.type === CLEAR_ALERT) {
-        return { ...state, showAlert: false, alertType: '', alertText: '' }
+        return {...state, showAlert: false, alertType: '', alertText: ''};
     }
 
-    throw new Error(`no such action: ${ action.type }`)
-}
+    if (action.type === REGISTER_USER_BEGIN) {
+        return {...state, isLoading: true};
+    }
+
+    if (action.type === REGISTER_USER_SUCCESS) {
+        return {
+            ...state,
+            isLoading: false,
+            user: action.payload.user,
+            token: action.payload.token,
+            userLocation: action.payload.location,
+            jobLocation: action.payload.location,
+            showAlert: true,
+            alertType: 'success',
+            alertText: 'Successfully registered'
+        };
+    }
+
+    if (action.type === REGISTER_USER_ERROR) {
+        return {
+            ...state,
+            isLoading: false,
+            showAlert: true,
+            alertType: 'danger',
+            alertText: action.payload.message
+        };
+    }
+
+    throw new Error(`no such action: ${action.type}`);
+};
 
 export default reducer;
