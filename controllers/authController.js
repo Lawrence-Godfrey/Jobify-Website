@@ -21,14 +21,23 @@ const register = async (req, res, next) => {
         });
     }
 
-    const user = await User.create(serializer.validatedData());
+    const user = await User.findOne({ email: req.body.email });
+    if (user) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'User with this email already exists',
+            user: serializer.data()
+        });
 
-    const token = user.createJWT();
-
-    res.status(201).json({
-        status: 'success',
-        user: serializer.data(),
-        token });
+    } else {
+        const newUser = await serializer.save();
+        const token = newUser.createJWT();
+        res.status(201).json({
+            status: 'success',
+            user: serializer.data(),
+            token
+        });
+    }
 }
 
 /**
