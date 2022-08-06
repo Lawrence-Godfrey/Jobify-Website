@@ -13,7 +13,7 @@ import UserSerializer from "../serializers/userSerializer.js";
 const register = async (req, res, next) => {
     const serializer = new UserSerializer(req.body);
 
-    if (!serializer.isValid()) {
+    if (!serializer.isValid({})) {
         return res.status(400).json({
             status: 'error',
             message: 'Invalid data',
@@ -25,8 +25,7 @@ const register = async (req, res, next) => {
     if (user) {
         return res.status(400).json({
             status: 'error',
-            message: 'User with this email already exists',
-            user: serializer.data()
+            message: 'User with this email already exists'
         });
 
     } else {
@@ -47,7 +46,40 @@ const register = async (req, res, next) => {
  * @returns {Promise<void>}
  */
 const login = async (req, res) => {
-    res.send('login user')
+    const { email, password } = req.body;
+    const serializer = new UserSerializer(req.body);
+
+    if (!serializer.isValid({skipRequired: "name"})) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'Invalid data',
+            errors: serializer.errors
+        });
+    }
+
+    const user = await User.findOne({ email }).select('+password');
+    if (!user) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'User with this email does not exist',
+        });
+    }
+
+    const isValidPassword = await user.verifyPassword(password);
+    if (!isValidPassword) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'Invalid password',
+            user: serializer.data()
+        });
+    }
+
+    const token = user.createJWT();
+    res.status(200).json({
+        status: 'success',
+        user: serializer.data(),
+        token
+    });
 }
 
 const updateUser = async (req, res) => {
