@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import validator from 'validator';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 
 
 /**
@@ -43,14 +44,42 @@ const UserSchema = new mongoose.Schema({
     }
 });
 
+/**
+ * Perform any necessary pre-save operations.
+ * Includes hashing the password.
+ */
 UserSchema.pre('save', async function () {
-    // await updatePassword(this)
-
-    return this;
+    if (this.isModified('password')) {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+    }
 })
 
+/**
+ * Create a JWT token for the user.
+ * @returns {string}
+ * @memberof User
+ * @instance
+ * @method createJWT
+ */
 UserSchema.methods.createJWT = function () {
-    return jwt.sign({ userId: this._id }, process.env.JWT_SECRET, { expiresIn: process.env.JTW_EXPIRES_IN });
+    return jwt.sign(
+        { userId: this._id },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JTW_EXPIRES_IN }
+    );
+}
+
+/**
+ * Verify that a password is correct for a User instance.
+ * @param {string} password The password to verify.
+ * @memberof User
+ * @instance
+ * @method verifyPassword
+ * @returns {Promise<*>}
+ */
+UserSchema.methods.verifyPassword = async function (password) {
+    return await bcrypt.compare(password, this.password);
 }
 
 
