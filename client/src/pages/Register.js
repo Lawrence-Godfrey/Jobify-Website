@@ -57,32 +57,38 @@ const Register = () => {
     }, [user, navigate])
 
     return (
-        <Wrapper className='full-page'>
-            <form className='form' onSubmit={onSubmit}>
-                <Logo />
-                <h3>{ values.isMember ? 'Login' : 'Register'}</h3>
+        <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-md w-full space-y-8">
+                <form className='mt-8 space-y-6' onSubmit={onSubmit}>
+                    <Logo />
+                    <h3 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                        { values.isMember ? 'Login' : 'Register'}
+                    </h3>
 
-                { showAlert && <Alert /> }
+                    { showAlert && <Alert /> }
 
-                { !values.isMember && (
-                    <FormRow type='text' name='name' value={values.name} handleChange={handleChange} />
-                )}
+                    <div className="rounded-md shadow-sm -space-y-px">
+                        { !values.isMember && (
+                            <FormRow type='text' name='name' value={values.name} handleChange={handleChange} />
+                        )}
 
-                <FormRow type='email' name='email' value={values.email} handleChange={handleChange} />
-                <FormRow type='password' name='password' value={values.password} handleChange={handleChange} />
+                        <FormRow type='email' name='email' value={values.email} handleChange={handleChange} />
+                        <FormRow type='password' name='password' value={values.password} handleChange={handleChange} />
+                    </div>
 
-                <button type='submit' className='btn btn-block' disabled={isLoading}>
-                    submit
-                </button>
-
-                <p>
-                    { values.isMember ? 'Not a member?' : 'Already a member?'}
-                    <button type='button' onClick={toggleMember} className='member-btn'>
-                        { values.isMember ? 'Register' : 'Login' }
+                    <button type='submit' className='btn btn-block' disabled={isLoading}>
+                        submit
                     </button>
-                </p>
-            </form>
-        </Wrapper>
+
+                    <p>
+                        { values.isMember ? 'Not a member?' : 'Already a member?'}
+                        <button type='button' onClick={toggleMember} className='member-btn'>
+                            { values.isMember ? 'Register' : 'Login' }
+                        </button>
+                    </p>
+                </form>
+            </div>
+        </div>
     );
 }
 
