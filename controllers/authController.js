@@ -65,6 +65,8 @@ const login = async (req, res) => {
         });
     }
 
+    serializer.instance = user;
+
     const isValidPassword = await user.verifyPassword(password);
     if (!isValidPassword) {
         return res.status(400).json({
