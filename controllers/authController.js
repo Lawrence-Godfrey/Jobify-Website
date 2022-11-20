@@ -85,7 +85,30 @@ const login = async (req, res) => {
 }
 
 const updateUser = async (req, res) => {
-    res.send('updateUser user')
+    const { email, name, lastName, location } = req.body;
+
+    if (!email && !name && !lastName && !location) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'Invalid data',
+        });
+    }
+
+    for (let key in req.body) {
+        if (req.body.hasOwnProperty(key) && req.user[key]) {
+            req.user[key] = req.body[key];
+        }
+    }
+
+    await req.user.save();
+
+    const serializer = new UserSerializer(req.body);
+    serializer.instance = req.user;
+
+    return res.status(200).json({
+        status: 'success',
+        user: serializer.data()
+    });
 }
 
 export { register, login, updateUser }

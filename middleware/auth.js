@@ -1,5 +1,6 @@
 import {UnauthenticatedError} from "../errors/index.js";
 import jwt from "jsonwebtoken";
+import User from "../models/user.js";
 
 
 const authenticateUser = async (req, res, next) => {
@@ -15,13 +16,11 @@ const authenticateUser = async (req, res, next) => {
     const token = authHeader.split(" ")[1];
 
     try {
-        req.user = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = await User.findById(jwt.verify(token, process.env.JWT_SECRET).userId);
         next();
     } catch (err) {
         throw new UnauthenticatedError("Invalid token");
     }
-
-    next();
 }
 
 export default authenticateUser;
