@@ -13,7 +13,10 @@ import {
     LOGIN_USER_ERROR,
     LOGIN_USER_SUCCESS,
     TOGGLE_SIDEBAR,
-    LOGOUT_USER
+    LOGOUT_USER,
+    UPDATE_USER_BEGIN,
+    UPDATE_USER_ERROR,
+    UPDATE_USER_SUCCESS,
 } from "./actions";
 
 
@@ -75,8 +78,12 @@ const AppProvider = ({children}) => {
     }
 
     const addUserToLocalStorage = ({ user, token }) => {
-        localStorage.setItem('user', JSON.stringify(user))
-        localStorage.setItem('token', token)
+        if (user) {
+            localStorage.setItem('user', JSON.stringify(user))
+        }
+        if (token) {
+            localStorage.setItem('token', token)
+        }
     }
 
     const removeUserFromLocalStorage = () => {
@@ -93,7 +100,6 @@ const AppProvider = ({children}) => {
             dispatch({ type: REGISTER_USER_SUCCESS, payload: { user, token } })
             addUserToLocalStorage({ user, token })
         } catch (error) {
-            console.log(error)
             dispatch({
                 type: REGISTER_USER_ERROR,
                 payload: {
@@ -116,7 +122,6 @@ const AppProvider = ({children}) => {
             dispatch({ type: LOGIN_USER_SUCCESS, payload: { user, token } })
             addUserToLocalStorage({ user, token })
         } catch (error) {
-            console.log(error)
             dispatch({
                 type: LOGIN_USER_ERROR,
                 payload: {
@@ -135,12 +140,31 @@ const AppProvider = ({children}) => {
     }
 
     const logoutUser = () => {
-        dispatch({ type: LOGOUT_USER, payload: { user: null, token: null } })
         removeUserFromLocalStorage()
+        dispatch({ type: LOGOUT_USER })
+        window.location.reload();
+    }
+
+    const updateUser = async (user) => {
+        dispatch({ type: UPDATE_USER_BEGIN })
+
+        try {
+            const { data } = await authFetch.patch('/auth/updateUser', user)
+            addUserToLocalStorage({ user })
+            dispatch({ type: UPDATE_USER_SUCCESS, payload: data })
+        } catch (error) {
+            dispatch({
+                type: UPDATE_USER_ERROR,
+                payload: {
+                    message: error.response.data.message,
+                }
+            })
+        }
     }
 
     return (
-        <AppContext.Provider value={{ ...state, displayAlert, clearAlert, registerUser, loginUser, toggleSidebar, logoutUser }}>
+        <AppContext.Provider value={{ ...state, displayAlert, clearAlert, registerUser, loginUser,
+            toggleSidebar, logoutUser, updateUser }}>
             { children }
         </AppContext.Provider>
     )

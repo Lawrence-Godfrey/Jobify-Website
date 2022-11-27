@@ -8,9 +8,12 @@ import {
     LOGIN_USER_SUCCESS,
     LOGIN_USER_ERROR,
     TOGGLE_SIDEBAR,
-    LOGOUT_USER
+    LOGOUT_USER,
+    UPDATE_USER_BEGIN,
+    UPDATE_USER_SUCCESS,
+    UPDATE_USER_ERROR
 } from "./actions";
-import {initialState} from "./appContext";
+import { initialState } from "./appContext";
 
 
 const reducer = (state, action) => {
@@ -87,6 +90,34 @@ const reducer = (state, action) => {
 
     if (action.type === LOGOUT_USER) {
         return { ...initialState };
+    }
+
+    if (action.type === UPDATE_USER_BEGIN) {
+        return {
+            ...state,
+            isLoading: true
+        };
+    }
+
+    if (action.type === UPDATE_USER_SUCCESS) {
+        return {
+            ...state,
+            isLoading: false,
+            user: action.payload.user,
+            showAlert: true,
+            alertType: 'success',
+            alertText: 'Successfully updated profile'
+        };
+    }
+
+    if (action.type === UPDATE_USER_ERROR) {
+        return {
+            ...state,
+            isLoading: false,
+            showAlert: true,
+            alertType: 'danger',
+            alertText: action.payload.message
+        };
     }
 
     throw new Error(`no such action: ${action.type}`);

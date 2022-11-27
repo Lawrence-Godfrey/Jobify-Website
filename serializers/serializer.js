@@ -21,8 +21,6 @@ class Serializer {
         this.instance = null;
         this.errors = {};
 
-        console.log(this.fields);
-
         // Loop through the request data and only save the fields which are also in the fields object.
         for (let key in this.fields) {
             if (this.fields[key]['readOnly'] && this.fields[key]['readOnly'] === true) {
@@ -96,7 +94,6 @@ class Serializer {
                 this.instance = await this.model.create(this.validatedData());
                 return this.instance;
             } catch (err) {
-                console.log(err);
                 return null;
             }
         }
