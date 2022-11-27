@@ -38,6 +38,32 @@ const AppContext = React.createContext({})
 const AppProvider = ({children}) => {
     const [state, dispatch] = useReducer(reducer, initialState)
 
+    const authFetch = axios.create({
+        baseURL: '/api',
+        headers: {
+            Authorization: `Bearer ${state.token}`
+        }
+    })
+
+    // Interceptors
+    // Request Interceptor
+    authFetch.interceptors.request.use((config) => {
+        config.headers.Authorization = `Bearer ${state.token}`
+        return config
+    }, (error) => {
+        return Promise.reject(error)
+    })
+
+    // Response Interceptor
+    authFetch.interceptors.response.use((response) => {
+        return response
+    }, (error) => {
+        if (error.response.status === 401) {
+            logoutUser()
+        }
+        return Promise.reject(error)
+    })
+
     const displayAlert = () => {
         dispatch({ type: DISPLAY_ALERT })
     }
